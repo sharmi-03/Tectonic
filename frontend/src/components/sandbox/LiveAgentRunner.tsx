@@ -757,7 +757,7 @@ export const LiveAgentRunner: React.FC = () => {
                       type="text"
                       value={modalModel}
                       onChange={(e) => setModalModel(e.target.value)}
-                      placeholder="e.g. gemini-2.0-flash-exp, gemini-experimental, etc."
+                      placeholder="e.g. gemini-3.6-flash-exp, gemini-experimental, etc."
                       className="w-full text-xs font-mono px-3 py-2 rounded-lg bg-studio-surface border border-purple-500/50 text-slate-200 focus:outline-none focus:border-purple-400"
                     />
                   </div>

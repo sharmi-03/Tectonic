@@ -26,18 +26,20 @@ if GOOGLE_API_KEY:
 
 import litellm
 
-# Configure global LiteLLM resilience for high demand spikes (HTTP 503 / 429)
-litellm.num_retries = 5
-litellm.request_timeout = 90
+# LiteLLM global config — only used as fallback when native Gemini SDK fails.
+# Keep retries low: native SDK handles retries itself, and we don't want LiteLLM
+# to silently retry 5x before surfacing an error to the user.
+litellm.num_retries = 2
+litellm.request_timeout = 60
 
-# Default model - use gemini-3.8-flash (latest available model)
-RAW_MODEL_NAME = os.getenv("GEMINI_MODEL", os.getenv("MODEL_NAME", "gemini-3.8-flash"))
+# Default model - gemini-3.6-flash is the active production model
+RAW_MODEL_NAME = os.getenv("GEMINI_MODEL", os.getenv("MODEL_NAME", "gemini-3.6-flash"))
 
 
 def resolve_model_name(raw_name: str) -> str:
     """Normalize model string to provider format for LiteLLM generalization."""
     if not raw_name:
-        return "gemini-3.8-flash"
+        return "gemini-3.6-flash"
     clean = raw_name.strip()
     # For native Gemini model, don't add gemini/ prefix
     if "/" in clean:
@@ -49,7 +51,7 @@ def resolve_model_name(raw_name: str) -> str:
 def resolve_litellm_model_name(raw_name: str) -> str:
     """Normalize model string to provider format for LiteLLM."""
     if not raw_name:
-        return "gemini/gemini-3.8-flash"
+        return "gemini/gemini-3.6-flash"
     clean = raw_name.strip()
     if "/" in clean:
         return clean
@@ -68,11 +70,12 @@ def _is_aq_key(api_key: str) -> bool:
 
 
 def build_model(model_name: str = None):
-    """Create the model wrapper for a model name: Claude ("claude-...") or Gemini.
+    """Create the model wrapper for a model name: Claude or Gemini.
 
-    Claude uses ADK's Anthropic adapter with ANTHROPIC_API_KEY. Gemini uses the native Google Gemini
-    model for AQ.* keys (Authentication Keys from Google AI Studio), which work better with the native
-    SDK, and LiteLLM for other key formats.
+    For Gemini we ALWAYS use the native google-genai SDK (Gemini class) regardless
+    of key format. This calls generativelanguage.googleapis.com directly and avoids
+    LiteLLM routing through vertex_ai which causes frequent 500/503 errors.
+    LiteLLM is only kept as a last-resort fallback.
     """
     if model_name and is_claude(model_name):
         anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -80,28 +83,25 @@ def build_model(model_name: str = None):
             raise ValueError(f"{model_name} needs an Anthropic API key (ANTHROPIC_API_KEY).")
         return build_claude(model_name, anthropic_key)
 
-    api_key = os.getenv("GOOGLE_API_KEY", "") or os.getenv("GEMINI_API_KEY", "")
     target_model = resolve_model_name(model_name or MODEL_NAME)
-    
-    # For AQ. keys (new Google AI Studio Authentication Keys), use native Gemini model
-    # These keys work best with the native google-genai SDK, not LiteLLM's OpenAI-compatible route
-    if _is_aq_key(api_key):
+
+    # Native Gemini SDK — works for both AIza* (standard) and AQ.* (auth) keys.
+    # Direct call to Google AI Studio API, no LiteLLM proxy, far more reliable.
+    try:
         from google.adk.models.google_llm import Gemini
         return Gemini(model=target_model)
-    
-    # For standard API keys (AIza*), use LiteLLM wrapper
+    except Exception as exc:
+        logging.getLogger(__name__).warning(
+            "Native Gemini SDK unavailable (%s); falling back to LiteLLM.", exc
+        )
+
+    # Fallback: LiteLLM (use fewer retries to fail fast and surface real errors)
+    api_key = os.getenv("GOOGLE_API_KEY", "") or os.getenv("GEMINI_API_KEY", "")
     from google.adk.models.lite_llm import LiteLlm
     litellm_model = resolve_litellm_model_name(model_name or RAW_MODEL_NAME)
-    
-    kwargs = {
-        "model": litellm_model,
-        "num_retries": 5,
-    }
-    
-    # Pass API key for Gemini models
+    kwargs: dict = {"model": litellm_model, "num_retries": 2}
     if api_key and "gemini" in litellm_model.lower():
         kwargs["api_key"] = api_key
-    
     return LiteLlm(**kwargs)
 
 

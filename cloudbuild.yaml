@@ -1,0 +1,43 @@
+# Cloud Build configuration for Tectonic - Full Agent Builder
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tectonic:latest', '.']
+    timeout: '1800s'
+
+  # Step 2: Push the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/tectonic:latest']
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'tectonic'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/tectonic:latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '300'
+      - '--port'
+      - '8080'
+      - '--set-secrets'
+      - 'GOOGLE_API_KEY=google-api-key:latest,GEMINI_API_KEY=google-api-key:latest'
+      - '--set-env-vars'
+      - 'GEMINI_MODEL=gemini-3.6-flash,ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true,BUILDER_MODEL=gemini-3.6-flash'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+
+timeout: '1800s'

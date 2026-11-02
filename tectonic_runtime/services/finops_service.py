@@ -60,7 +60,7 @@ FALLBACK_RATE = {"input": 0.30, "output": 2.50, "estimate": True,
 
 
 def normalize_model(model: str) -> str:
-    """'gemini/gemini-3.8-flash', 'models/gemini-3.8-flash' → 'gemini-3.8-flash'."""
+    """'gemini/gemini-3.6-flash', 'models/gemini-3.6-flash' → 'gemini-3.6-flash'."""
     return (model or "unknown").split("/")[-1].strip().lower()
 
 

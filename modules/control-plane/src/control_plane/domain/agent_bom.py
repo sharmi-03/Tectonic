@@ -17,7 +17,7 @@ class AgentBillOfMaterials:
     name: str = ""
     role: str = ""
     model_provider: str = "google"
-    model_name: str = "gemini-2.0-flash"
+    model_name: str = "gemini-3.6-flash"
     model_version: str = "latest"
     assigned_tools: list[str] = field(default_factory=list)
     effective_authority: dict[str, Any] = field(default_factory=dict)

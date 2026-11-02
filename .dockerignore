@@ -1,0 +1,58 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.mypy_cache
+.pytest_cache
+
+# Node
+frontend/node_modules
+frontend/.cache
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Environment files (we'll use Secret Manager instead)
+.env
+.env.local
+.env.*.local
+
+# Test files
+tests/
+pytest.ini
+
+# Logs and generated files (will be created at runtime)
+logs/
+generated_agents/
+
+# Modules folder (heavy dependencies not needed for core agent builder)
+modules/
+
+# Documentation (keep design playbook needed by agent_builder)
+!agent_builder/profiles/design_playbook.md
+LICENSE
+
+# Production server files to exclude
+server_production.py

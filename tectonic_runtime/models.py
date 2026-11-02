@@ -1,7 +1,7 @@
 """Model integration for the platform modules: one place that talks to Gemini.
 
 Model roles (each overridable by environment variable):
-  * reasoning  — GEMINI_MODEL (default gemini-3.8-flash): grounded answers in Agentic-RAG.
+  * reasoning  — GEMINI_MODEL (default gemini-3.6-flash): grounded answers in Agentic-RAG.
   * utility    — TECTONIC_UTILITY_MODEL (default gemini-3.5-flash-lite): fast, cheap structured
                  calls — RAG routing, groundedness critique, query reformulation, audit
                  natural-language → filter translation, PromptOps reflection.
@@ -44,7 +44,7 @@ def set_usage_hook(hook: UsageHook | None) -> None:
 
 
 def reasoning_model() -> str:
-    return os.getenv("GEMINI_MODEL") or "gemini-3.8-flash"
+    return os.getenv("GEMINI_MODEL") or "gemini-3.6-flash"
 
 
 def utility_model() -> str:

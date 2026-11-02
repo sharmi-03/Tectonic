@@ -39,7 +39,7 @@ as `MODULE_ACCESS_DENIED`.
 
 | Role | Default | Used for |
 | --- | --- | --- |
-| reasoning | `GEMINI_MODEL` (gemini-3.8-flash) | grounded RAG answers, prompt reflection |
+| reasoning | `GEMINI_MODEL` (gemini-3.6-flash) | grounded RAG answers, prompt reflection |
 | utility | `TECTONIC_UTILITY_MODEL` (gemini-3.5-flash-lite) | RAG routing, groundedness critique, query reformulation, audit NL → filter |
 | embeddings | `TECTONIC_EMBEDDING_MODEL` (gemini-embedding-2, `TECTONIC_EMBEDDING_DIM`=768) | Vector DB (RETRIEVAL_DOCUMENT / RETRIEVAL_QUERY task types) |
 

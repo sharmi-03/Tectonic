@@ -1,0 +1,37 @@
+# This file specifies files that are *not* uploaded to Google Cloud
+# using gcloud. It follows the same syntax as .gitignore.
+
+# Git
+.git
+.gitignore
+
+# Python virtual environments
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Node modules (will be installed during Docker build)
+node_modules/
+frontend/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Test files
+tests/
+.pytest_cache/
+
+# Local environment files
+.env
+.env.local
+
+# Logs and generated files
+logs/
+*.log
+
+# Documentation (optional - keep for reference)
+# *.md

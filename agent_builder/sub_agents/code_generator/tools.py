@@ -53,11 +53,11 @@ import litellm
 litellm.num_retries = 5
 litellm.request_timeout = 90
 
-RAW_MODEL = os.getenv("GEMINI_MODEL", os.getenv("MODEL_NAME", "gemini-3.8-flash"))
+RAW_MODEL = os.getenv("GEMINI_MODEL", os.getenv("MODEL_NAME", "gemini-3.6-flash"))
 
 
 def resolve_model(name: str) -> str:
-    clean = (name or "gemini-3.8-flash").strip()
+    clean = (name or "gemini-3.6-flash").strip()
     if "/" in clean:
         return clean
     if clean.startswith("gemini"):

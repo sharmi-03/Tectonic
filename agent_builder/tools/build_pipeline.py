@@ -80,10 +80,12 @@ def _runtime():
 
 
 def _admin_ctx(tool_context: ToolContext | None):
-    from tectonic_runtime import CallContext
-
-    session = getattr(tool_context, "session", None) if tool_context else None
-    return CallContext(agent_id="agent_builder", role="admin", team="agent_builder", session_id=getattr(session, "id", None))
+    try:
+        from tectonic_runtime import CallContext
+        session = getattr(tool_context, "session", None) if tool_context else None
+        return CallContext(agent_id="agent_builder", role="admin", team="agent_builder", session_id=getattr(session, "id", None))
+    except Exception:
+        return None
 
 
 async def _invoke(module: str, op: str, payload: dict[str, Any], tool_context: ToolContext | None) -> dict[str, Any]:
